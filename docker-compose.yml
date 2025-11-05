@@ -1,0 +1,147 @@
+version: '3.9'
+
+services:
+  # ==========================================
+  # BASES DE DATOS POSTGRESQL
+  # ==========================================
+  
+  # Base de datos para Orders Service
+  orders-db:
+    image: postgres:15-alpine
+    container_name: orders-db
+    environment:
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: orders_user
+      POSTGRES_PASSWORD: orders_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    volumes:
+      - orders-data:/var/lib/postgresql/data
+      - ./init-orders-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders_user -d orders_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Base de datos para Fleet Service
+  fleet-db:
+    image: postgres:15-alpine
+    container_name: fleet-db
+    environment:
+      POSTGRES_DB: fleet_db
+      POSTGRES_USER: fleet_user
+      POSTGRES_PASSWORD: fleet_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5434:5432"
+    volumes:
+      - fleet-data:/var/lib/postgresql/data
+      - ./init-fleet-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fleet_user -d fleet_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Base de datos para Locations Service
+  locations-db:
+    image: postgres:15-alpine
+    container_name: locations-db
+    environment:
+      POSTGRES_DB: locations_db
+      POSTGRES_USER: locations_user
+      POSTGRES_PASSWORD: locations_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5435:5432"
+    volumes:
+      - locations-data:/var/lib/postgresql/data
+      - ./init-locations-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U locations_user -d locations_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Base de datos para Pricing Service
+  pricing-db:
+    image: postgres:15-alpine
+    container_name: pricing-db
+    environment:
+      POSTGRES_DB: pricing_db
+      POSTGRES_USER: pricing_user
+      POSTGRES_PASSWORD: pricing_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5436:5432"
+    volumes:
+      - pricing-data:/var/lib/postgresql/data
+      - ./init-pricing-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pricing_user -d pricing_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # PGADMIN - Administración de Bases de Datos
+  # ==========================================
+  
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@tpi.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    depends_on:
+      - orders-db
+      - fleet-db
+      - locations-db
+      - pricing-db
+
+# ==========================================
+# VOLÚMENES PARA PERSISTENCIA
+# ==========================================
+
+volumes:
+  orders-data:
+    name: orders-data
+  fleet-data:
+    name: fleet-data
+  locations-data:
+    name: locations-data
+  pricing-data:
+    name: pricing-data
+  pgadmin-data:
+    name: pgadmin-data
+
+# ==========================================
+# RED PARA COMUNICACIÓN ENTRE SERVICIOS
+# ==========================================
+
+networks:
+  tpi-network:
+    name: tpi-network
+    driver: bridge
