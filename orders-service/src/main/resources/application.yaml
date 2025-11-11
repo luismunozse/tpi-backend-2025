@@ -1,3 +1,9 @@
 spring:
   application:
     name: orders-service
+
+tpi:
+  services:
+    fleet-base-url: ${TPI_FLEET_SERVICE_URL:http://fleet-service:8080}
+    locations-base-url: ${TPI_LOCATIONS_SERVICE_URL:http://locations-service:8080}
+    pricing-base-url: ${TPI_PRICING_SERVICE_URL:http://pricing-service:8080}

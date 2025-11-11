@@ -1,4 +1,4 @@
-package ar.edu.utn.frc.backend.tpi.locations.model;
+package ar.edu.utn.frc.backend.tpi.pricing.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,13 +13,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "coordenadas")
-public class Coordenada {
+@Table(name = "recargos_tarifa")
+public class RecargoTarifa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    private Double latitud;
-    private Double longitud;
+    private String descripcion;
+    private Double porcentaje;
+    private Double montoFijo;
 }

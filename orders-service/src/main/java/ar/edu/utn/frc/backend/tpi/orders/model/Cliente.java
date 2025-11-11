@@ -1,5 +1,6 @@
-package ar.edu.utn.frc.backend.tpi.locations.model;
+package ar.edu.utn.frc.backend.tpi.orders.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,13 +14,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "coordenadas")
-public class Coordenada {
+@Table(name = "clientes")
+public class Cliente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    private Double latitud;
-    private Double longitud;
+    private String nombre;
+
+    @Column(unique = true)
+    private String email;
+
+    private String telefono;
 }
