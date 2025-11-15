@@ -121,6 +121,112 @@ services:
       - locations-db
       - pricing-db
 
+  # ==========================================
+  # KEYCLOAK (IAM)
+  # ==========================================
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: ["start-dev"]
+    ports:
+      - "8081:8080"
+    networks:
+      - tpi-network
+    restart: unless-stopped
+
+  # ==========================================
+  # MICROSERVICIOS SPRING BOOT
+  # ==========================================
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs
+      TPI_ORDERS_SERVICE_URL: http://orders-service:8080
+      TPI_FLEET_SERVICE_URL: http://fleet-service:8080
+      TPI_LOCATIONS_SERVICE_URL: http://locations-service:8080
+      TPI_PRICING_SERVICE_URL: http://pricing-service:8080
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    depends_on:
+      - orders-service
+      - fleet-service
+      - locations-service
+      - pricing-service
+      - keycloak
+
+  orders-service:
+    build: ./orders-service
+    container_name: orders-service
+    ports:
+      - "8083:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://orders-db:5432/orders_db
+      SPRING_DATASOURCE_USERNAME: orders_user
+      SPRING_DATASOURCE_PASSWORD: orders_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    depends_on:
+      - orders-db
+
+  fleet-service:
+    build: ./fleet-service
+    container_name: fleet-service
+    ports:
+      - "8084:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://fleet-db:5432/fleet_db
+      SPRING_DATASOURCE_USERNAME: fleet_user
+      SPRING_DATASOURCE_PASSWORD: fleet_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    depends_on:
+      - fleet-db
+
+  locations-service:
+    build: ./locations-service
+    container_name: locations-service
+    ports:
+      - "8085:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://locations-db:5432/locations_db
+      SPRING_DATASOURCE_USERNAME: locations_user
+      SPRING_DATASOURCE_PASSWORD: locations_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    depends_on:
+      - locations-db
+
+  pricing-service:
+    build: ./pricing-service
+    container_name: pricing-service
+    ports:
+      - "8086:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pricing-db:5432/pricing_db
+      SPRING_DATASOURCE_USERNAME: pricing_user
+      SPRING_DATASOURCE_PASSWORD: pricing_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - tpi-network
+    restart: unless-stopped
+    depends_on:
+      - pricing-db
+
 # ==========================================
 # VOLÚMENES PARA PERSISTENCIA
 # ==========================================
