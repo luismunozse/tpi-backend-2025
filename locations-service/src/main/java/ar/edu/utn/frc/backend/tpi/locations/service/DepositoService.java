@@ -27,14 +27,14 @@ public class DepositoService {
         return depositoRepository.findAll();
     }
 
-    public List<Deposito> obtenerDepositosPorCiudad(Integer ciudadId) {
+    public List<Deposito> obtenerDepositosPorCiudad(Long ciudadId) {
         if (!ciudadRepository.existsById(ciudadId)) {
             throw new EntityNotFoundException("Ciudad no encontrada con id " + ciudadId);
         }
         return depositoRepository.findByCiudad_Id(ciudadId);
     }
 
-    public Deposito obtenerDepositoPorId(Integer id) {
+    public Deposito obtenerDepositoPorId(Long id) {
         return depositoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Depósito no encontrado con id " + id));
     }
@@ -48,7 +48,7 @@ public class DepositoService {
     }
 
     @Transactional
-    public Deposito actualizarDeposito(Integer id, Deposito datosActualizados) {
+    public Deposito actualizarDeposito(Long id, Deposito datosActualizados) {
         Deposito deposito = obtenerDepositoPorId(id);
         deposito.setNombre(datosActualizados.getNombre());
         deposito.setDireccion(datosActualizados.getDireccion());
@@ -60,7 +60,7 @@ public class DepositoService {
     }
 
     @Transactional
-    public void eliminarDeposito(Integer id) {
+    public void eliminarDeposito(Long id) {
         if (!depositoRepository.existsById(id)) {
             throw new EntityNotFoundException("Depósito no encontrado con id " + id);
         }

@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProvinciaDto {
 
-    private Integer id;
+    private Long id;
     private String nombre;
 }

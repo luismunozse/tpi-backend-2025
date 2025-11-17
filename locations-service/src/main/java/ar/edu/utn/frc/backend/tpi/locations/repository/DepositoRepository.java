@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface DepositoRepository extends JpaRepository<Deposito, Integer> {
-    List<Deposito> findByCiudad_Id(Integer ciudadId);
+public interface DepositoRepository extends JpaRepository<Deposito, Long> {
+    List<Deposito> findByCiudad_Id(Long ciudadId);
 }

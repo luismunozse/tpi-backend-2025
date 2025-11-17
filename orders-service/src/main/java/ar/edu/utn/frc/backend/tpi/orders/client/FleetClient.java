@@ -1,6 +1,5 @@
 package ar.edu.utn.frc.backend.tpi.orders.client;
 
-import ar.edu.utn.frc.backend.tpi.orders.client.ServiceClientHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;

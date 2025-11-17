@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CoordenadaDto {
 
-    private Integer id;
+    private Long id;
     private Double latitud;
     private Double longitud;
 }

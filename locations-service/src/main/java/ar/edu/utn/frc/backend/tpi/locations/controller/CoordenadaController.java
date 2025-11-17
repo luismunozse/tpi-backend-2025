@@ -35,7 +35,7 @@ public class CoordenadaController {
     }
 
     @GetMapping("/{id}")
-    public CoordenadaDto obtenerCoordenada(@PathVariable Integer id) {
+    public CoordenadaDto obtenerCoordenada(@PathVariable Long id) {
         Coordenada coordenada = coordenadaService.obtenerCoordenadaPorId(id);
         return coordenadaMapper.toDto(coordenada);
     }
@@ -48,14 +48,14 @@ public class CoordenadaController {
     }
 
     @PutMapping("/{id}")
-    public CoordenadaDto actualizarCoordenada(@PathVariable Integer id, @RequestBody CoordenadaDto coordenadaDto) {
+    public CoordenadaDto actualizarCoordenada(@PathVariable Long id, @RequestBody CoordenadaDto coordenadaDto) {
         Coordenada coordenada = coordenadaMapper.toEntity(coordenadaDto);
         Coordenada actualizada = coordenadaService.actualizarCoordenada(id, coordenada);
         return coordenadaMapper.toDto(actualizada);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarCoordenada(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminarCoordenada(@PathVariable Long id) {
         coordenadaService.eliminarCoordenada(id);
         return ResponseEntity.noContent().build();
     }

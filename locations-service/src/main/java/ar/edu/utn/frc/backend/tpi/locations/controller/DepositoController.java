@@ -28,7 +28,7 @@ public class DepositoController {
     private final DepositoMapper depositoMapper;
 
     @GetMapping
-    public List<DepositoDto> obtenerDepositos(@RequestParam(value = "ciudadId", required = false) Integer ciudadId) {
+    public List<DepositoDto> obtenerDepositos(@RequestParam(value = "ciudadId", required = false) Long ciudadId) {
         List<Deposito> depositos = ciudadId == null
                 ? depositoService.obtenerDepositos()
                 : depositoService.obtenerDepositosPorCiudad(ciudadId);
@@ -38,7 +38,7 @@ public class DepositoController {
     }
 
     @GetMapping("/{id}")
-    public DepositoDto obtenerDeposito(@PathVariable Integer id) {
+    public DepositoDto obtenerDeposito(@PathVariable Long id) {
         Deposito deposito = depositoService.obtenerDepositoPorId(id);
         return depositoMapper.toDto(deposito);
     }
@@ -51,14 +51,14 @@ public class DepositoController {
     }
 
     @PutMapping("/{id}")
-    public DepositoDto actualizarDeposito(@PathVariable Integer id, @RequestBody DepositoDto depositoDto) {
+    public DepositoDto actualizarDeposito(@PathVariable Long id, @RequestBody DepositoDto depositoDto) {
         Deposito deposito = depositoMapper.toEntity(depositoDto);
         Deposito actualizado = depositoService.actualizarDeposito(id, deposito);
         return depositoMapper.toDto(actualizado);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarDeposito(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminarDeposito(@PathVariable Long id) {
         depositoService.eliminarDeposito(id);
         return ResponseEntity.noContent().build();
     }

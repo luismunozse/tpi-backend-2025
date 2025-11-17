@@ -1,19 +1,19 @@
 CREATE TABLE IF NOT EXISTS provincias (
-    id     SERIAL PRIMARY KEY,
+    id     BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS coordenadas (
-    id       SERIAL PRIMARY KEY,
+    id       BIGSERIAL PRIMARY KEY,
     latitud  DOUBLE PRECISION,
     longitud DOUBLE PRECISION
 );
 
 CREATE TABLE IF NOT EXISTS ciudades (
-    id            SERIAL PRIMARY KEY,
+    id            BIGSERIAL PRIMARY KEY,
     nombre        VARCHAR(255),
-    provincia_id  INTEGER,
-    coordenada_id INTEGER,
+    provincia_id  BIGINT,
+    coordenada_id BIGINT,
     CONSTRAINT fk_ciudad_provincia
         FOREIGN KEY (provincia_id) REFERENCES provincias (id),
     CONSTRAINT fk_ciudad_coordenada
@@ -21,13 +21,13 @@ CREATE TABLE IF NOT EXISTS ciudades (
 );
 
 CREATE TABLE IF NOT EXISTS depositos (
-    id            SERIAL PRIMARY KEY,
+    id            BIGSERIAL PRIMARY KEY,
     nombre        VARCHAR(255),
     direccion     VARCHAR(255),
     altura        INTEGER,
-    ciudad_id     INTEGER,
-    provincia_id  INTEGER,
-    coordenada_id INTEGER,
+    ciudad_id     BIGINT,
+    provincia_id  BIGINT,
+    coordenada_id BIGINT,
     CONSTRAINT fk_deposito_ciudad
         FOREIGN KEY (ciudad_id) REFERENCES ciudades (id),
     CONSTRAINT fk_deposito_provincia
@@ -48,10 +48,10 @@ CREATE TABLE IF NOT EXISTS tramos (
     tipo                  VARCHAR(50),
     distancia_estimada_km DOUBLE PRECISION,
     ruta_id               BIGINT,
-    origen_deposito_id    INTEGER,
-    destino_deposito_id   INTEGER,
-    origen_coordenada_id  INTEGER,
-    destino_coordenada_id INTEGER,
+    origen_deposito_id    BIGINT,
+    destino_deposito_id   BIGINT,
+    origen_coordenada_id  BIGINT,
+    destino_coordenada_id BIGINT,
     CONSTRAINT fk_tramo_ruta
         FOREIGN KEY (ruta_id) REFERENCES rutas (id),
     CONSTRAINT fk_tramo_origen_deposito

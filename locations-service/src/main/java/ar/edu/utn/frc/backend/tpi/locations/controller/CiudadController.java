@@ -35,7 +35,7 @@ public class CiudadController {
     }
 
     @GetMapping("/{id}")
-    public CiudadDto obtenerCiudad(@PathVariable Integer id) {
+    public CiudadDto obtenerCiudad(@PathVariable Long id) {
         Ciudad ciudad = ciudadService.obtenerCiudadPorId(id);
         return ciudadMapper.toDto(ciudad);
     }
@@ -48,14 +48,14 @@ public class CiudadController {
     }
 
     @PutMapping("/{id}")
-    public CiudadDto actualizarCiudad(@PathVariable Integer id, @RequestBody CiudadDto ciudadDto) {
+    public CiudadDto actualizarCiudad(@PathVariable Long id, @RequestBody CiudadDto ciudadDto) {
         Ciudad ciudad = ciudadMapper.toEntity(ciudadDto);
         Ciudad actualizada = ciudadService.actualizarCiudad(id, ciudad);
         return ciudadMapper.toDto(actualizada);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarCiudad(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminarCiudad(@PathVariable Long id) {
         ciudadService.eliminarCiudad(id);
         return ResponseEntity.noContent().build();
     }

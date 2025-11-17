@@ -17,6 +17,6 @@ public class TramoDto {
     private Double distanciaEstimadaKm;
     private CoordenadaDto origen;
     private CoordenadaDto destino;
-    private Integer origenDepositoId;
-    private Integer destinoDepositoId;
+    private Long origenDepositoId;
+    private Long destinoDepositoId;
 }

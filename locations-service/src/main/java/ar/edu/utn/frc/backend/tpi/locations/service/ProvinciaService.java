@@ -20,7 +20,7 @@ public class ProvinciaService {
         return provinciaRepository.findAll();
     }
 
-    public Provincia obtenerProvinciaPorId(Integer id) {
+    public Provincia obtenerProvinciaPorId(Long id) {
         return provinciaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Provincia no encontrada con id " + id));
     }
@@ -31,14 +31,14 @@ public class ProvinciaService {
     }
 
     @Transactional
-    public Provincia actualizarProvincia(Integer id, Provincia datosActualizados) {
+    public Provincia actualizarProvincia(Long id, Provincia datosActualizados) {
         Provincia provincia = obtenerProvinciaPorId(id);
         provincia.setNombre(datosActualizados.getNombre());
         return provinciaRepository.save(provincia);
     }
 
     @Transactional
-    public void eliminarProvincia(Integer id) {
+    public void eliminarProvincia(Long id) {
         if (!provinciaRepository.existsById(id)) {
             throw new EntityNotFoundException("Provincia no encontrada con id " + id);
         }

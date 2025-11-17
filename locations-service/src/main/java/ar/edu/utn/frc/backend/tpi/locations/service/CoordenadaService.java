@@ -20,7 +20,7 @@ public class CoordenadaService {
         return coordenadaRepository.findAll();
     }
 
-    public Coordenada obtenerCoordenadaPorId(Integer id) {
+    public Coordenada obtenerCoordenadaPorId(Long id) {
         return coordenadaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Coordenada no encontrada con id " + id));
     }
@@ -31,7 +31,7 @@ public class CoordenadaService {
     }
 
     @Transactional
-    public Coordenada actualizarCoordenada(Integer id, Coordenada datosActualizados) {
+    public Coordenada actualizarCoordenada(Long id, Coordenada datosActualizados) {
         Coordenada coordenada = obtenerCoordenadaPorId(id);
         coordenada.setLatitud(datosActualizados.getLatitud());
         coordenada.setLongitud(datosActualizados.getLongitud());
@@ -39,7 +39,7 @@ public class CoordenadaService {
     }
 
     @Transactional
-    public void eliminarCoordenada(Integer id) {
+    public void eliminarCoordenada(Long id) {
         if (!coordenadaRepository.existsById(id)) {
             throw new EntityNotFoundException("Coordenada no encontrada con id " + id);
         }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DepositoDto {
 
-    private Integer id;
+    private Long id;
     private String nombre;
     private String direccion;
     private Integer altura;

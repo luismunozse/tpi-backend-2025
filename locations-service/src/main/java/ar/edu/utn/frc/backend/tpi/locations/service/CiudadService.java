@@ -24,7 +24,7 @@ public class CiudadService {
         return ciudadRepository.findAll();
     }
 
-    public Ciudad obtenerCiudadPorId(Integer id) {
+    public Ciudad obtenerCiudadPorId(Long id) {
         return ciudadRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ciudad no encontrada con id " + id));
     }
@@ -37,7 +37,7 @@ public class CiudadService {
     }
 
     @Transactional
-    public Ciudad actualizarCiudad(Integer id, Ciudad datosActualizados) {
+    public Ciudad actualizarCiudad(Long id, Ciudad datosActualizados) {
         Ciudad ciudad = obtenerCiudadPorId(id);
         ciudad.setNombre(datosActualizados.getNombre());
         ciudad.setProvincia(obtenerProvincia(datosActualizados.getProvincia()));
@@ -46,7 +46,7 @@ public class CiudadService {
     }
 
     @Transactional
-    public void eliminarCiudad(Integer id) {
+    public void eliminarCiudad(Long id) {
         if (!ciudadRepository.existsById(id)) {
             throw new EntityNotFoundException("Ciudad no encontrada con id " + id);
         }

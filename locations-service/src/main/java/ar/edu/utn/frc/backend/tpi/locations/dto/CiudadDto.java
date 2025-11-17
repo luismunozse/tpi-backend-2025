@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CiudadDto {
 
-    private Integer id;
+    private Long id;
     private String nombre;
     private ProvinciaDto provincia;
     private CoordenadaDto coordenada;

@@ -55,7 +55,7 @@ public class TramoMapper {
         return TipoTramo.valueOf(tipo.toUpperCase(Locale.ROOT));
     }
 
-    private Deposito crearReferenciaDeposito(Integer id) {
+    private Deposito crearReferenciaDeposito(Long id) {
         if (id == null) {
             return null;
         }

@@ -35,7 +35,7 @@ public class ProvinciaController {
     }
 
     @GetMapping("/{id}")
-    public ProvinciaDto obtenerProvincia(@PathVariable Integer id) {
+    public ProvinciaDto obtenerProvincia(@PathVariable Long id) {
         Provincia provincia = provinciaService.obtenerProvinciaPorId(id);
         return provinciaMapper.toDto(provincia);
     }
@@ -48,14 +48,14 @@ public class ProvinciaController {
     }
 
     @PutMapping("/{id}")
-    public ProvinciaDto actualizarProvincia(@PathVariable Integer id, @RequestBody ProvinciaDto provinciaDto) {
+    public ProvinciaDto actualizarProvincia(@PathVariable Long id, @RequestBody ProvinciaDto provinciaDto) {
         Provincia provincia = provinciaMapper.toEntity(provinciaDto);
         Provincia actualizada = provinciaService.actualizarProvincia(id, provincia);
         return provinciaMapper.toDto(actualizada);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarProvincia(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminarProvincia(@PathVariable Long id) {
         provinciaService.eliminarProvincia(id);
         return ResponseEntity.noContent().build();
     }
