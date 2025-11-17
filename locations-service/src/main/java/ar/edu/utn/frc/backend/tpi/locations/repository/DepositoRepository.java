@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DepositoRepository extends JpaRepository<Deposito, Integer> {
-    List<Deposito> findByCiudadId(Integer ciudadId);
+    List<Deposito> findByCiudad_Id(Integer ciudadId);
 }

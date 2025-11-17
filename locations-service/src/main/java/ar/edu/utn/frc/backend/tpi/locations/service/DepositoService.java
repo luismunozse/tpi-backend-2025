@@ -31,7 +31,7 @@ public class DepositoService {
         if (!ciudadRepository.existsById(ciudadId)) {
             throw new EntityNotFoundException("Ciudad no encontrada con id " + ciudadId);
         }
-        return depositoRepository.findByCiudadId(ciudadId);
+        return depositoRepository.findByCiudad_Id(ciudadId);
     }
 
     public Deposito obtenerDepositoPorId(Integer id) {

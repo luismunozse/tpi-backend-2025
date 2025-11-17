@@ -18,7 +18,7 @@ services:
       - "5433:5432"
     volumes:
       - orders-data:/var/lib/postgresql/data
-      - ./init-orders-db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init-orders-db.sql:/docker-entrypoint-initdb.d
     networks:
       - tpi-network
     restart: unless-stopped
@@ -41,7 +41,7 @@ services:
       - "5434:5432"
     volumes:
       - fleet-data:/var/lib/postgresql/data
-      - ./init-fleet-db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init-fleet-db.sql:/docker-entrypoint-initdb.d
     networks:
       - tpi-network
     restart: unless-stopped
@@ -64,7 +64,7 @@ services:
       - "5435:5432"
     volumes:
       - locations-data:/var/lib/postgresql/data
-      - ./init-locations-db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init-locations-db.sql:/docker-entrypoint-initdb.d
     networks:
       - tpi-network
     restart: unless-stopped
@@ -87,7 +87,7 @@ services:
       - "5436:5432"
     volumes:
       - pricing-data:/var/lib/postgresql/data
-      - ./init-pricing-db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init-pricing-db.sql:/docker-entrypoint-initdb.d
     networks:
       - tpi-network
     restart: unless-stopped

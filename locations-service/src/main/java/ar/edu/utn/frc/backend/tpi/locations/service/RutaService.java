@@ -21,13 +21,13 @@ public class RutaService {
     private final DepositoRepository depositoRepository;
 
     public List<Ruta> obtenerRutas() {
-        List<Ruta> rutas = rutaRepository.findAllWithDetalles();
+        List<Ruta> rutas = rutaRepository.findAll();
         rutas.forEach(this::hidratarTramos);
         return rutas;
     }
 
     public Ruta obtenerRutaPorId(Long id) {
-        Ruta ruta = rutaRepository.findDetailedById(id)
+        Ruta ruta = rutaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ruta no encontrada con id " + id));
         hidratarTramos(ruta);
         return ruta;
