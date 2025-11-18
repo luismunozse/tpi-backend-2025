@@ -47,7 +47,6 @@ public class SolicitudTransporteService {
     private final ClienteRepository clienteRepository;
     private final ContenedorRepository contenedorRepository;
     private final SolicitudTransporteMapper solicitudMapper;
-    private final RutaMapper rutaMapper;
     private final TramoMapper tramoMapper;
     private final NumeroSolicitudGenerator numeroSolicitudGenerator;
     private final FleetClient fleetClient;
@@ -214,6 +213,17 @@ public class SolicitudTransporteService {
         return tramoMapper.toDto(tramo);
     }
 
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public List<TramoDto> obtenerTracking(Long solicitudId) {
+        SolicitudTransporte solicitud = solicitudRepository.findDetailedById(solicitudId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Solicitud no encontrada con id " + solicitudId));
+
+        return solicitud.getRuta().getTramos().stream()
+                .sorted(Comparator.comparing(Tramo::getOrden))
+                .map(tramoMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     private Cliente obtenerOcrearCliente(CrearSolicitudRequestDto request) {
         return clienteRepository.findByEmailIgnoreCase(request.getEmailCliente())
                 .map(cliente -> {
@@ -296,8 +306,26 @@ public class SolicitudTransporteService {
     private void calcularCostosEstimados(SolicitudTransporte solicitud, List<CrearSolicitudRequestDto.TramoRequest> tramosRequest) {
         Ruta ruta = solicitud.getRuta();
         double distanciaTotalKm = ruta.getDistanciaTotalKm();
-        double consumoPromedio = 0.35; // valor estimado genérico, hasta tener dato real
-        double costoCombustible = 1.0; // se puede parametrizar vía pricing
+        double consumoPromedio = 0.35;
+        Double pesoContenedor = solicitud.getContenedor() != null ? solicitud.getContenedor().getPesoKg() : null;
+        Double volumenContenedor = solicitud.getContenedor() != null ? solicitud.getContenedor().getVolumenM3() : null;
+
+        if (pesoContenedor != null && volumenContenedor != null) {
+            FleetClient.CamionDto[] camionesElegibles = fleetClient.obtenerCamionesDisponibles(pesoContenedor, volumenContenedor);
+            double sumaConsumo = 0.0;
+            int cantidadConDato = 0;
+            for (FleetClient.CamionDto camion : camionesElegibles) {
+                if (camion.consumoCombustiblePorKm() != null) {
+                    sumaConsumo += camion.consumoCombustiblePorKm();
+                    cantidadConDato++;
+                }
+            }
+            if (cantidadConDato > 0) {
+                consumoPromedio = sumaConsumo / cantidadConDato;
+            }
+        }
+
+        double costoCombustible = 1.0;
 
         PricingClient.CalculoTarifaRequest pricingRequest = new PricingClient.CalculoTarifaRequest(
                 distanciaTotalKm,

@@ -74,4 +74,9 @@ public class SolicitudTransporteController {
     public CalculoSolicitudResponseDto recalcular(@PathVariable Long id) {
         return solicitudService.recalcularCosto(id);
     }
+
+    @GetMapping("/{id}/tracking")
+    public List<TramoDto> obtenerTracking(@PathVariable Long id) {
+        return solicitudService.obtenerTracking(id);
+    }
 }

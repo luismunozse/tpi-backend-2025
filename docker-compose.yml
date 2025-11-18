@@ -205,6 +205,7 @@ services:
       SPRING_DATASOURCE_USERNAME: locations_user
       SPRING_DATASOURCE_PASSWORD: locations_pass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
     networks:
       - tpi-network
     restart: unless-stopped

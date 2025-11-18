@@ -20,13 +20,25 @@ public class FleetClient {
         return response.getBody();
     }
 
+    public CamionDto[] obtenerCamionesDisponibles(Double peso, Double volumen) {
+        String url = helper.buildFleetUrl("/api/v1/camiones/disponibles?peso=" + peso + "&volumen=" + volumen);
+        ResponseEntity<CamionDto[]> response = restTemplate.getForEntity(url, CamionDto[].class);
+        CamionDto[] body = response.getBody();
+        return body != null ? body : new CamionDto[0];
+    }
+
     public void actualizarEstadoCamion(Long camionId, String estado) {
         String url = helper.buildFleetUrl("/api/v1/camiones/" + camionId + "/estado");
         RestTemplatePatchRequest request = new RestTemplatePatchRequest(estado);
         restTemplate.exchange(url, HttpMethod.PATCH, new HttpEntity<>(request), Void.class);
     }
 
-    public record CamionDto(Long id, Double capacidadPesoKg, Double capacidadVolumenM3, String estado) {}
+    public record CamionDto(Long id,
+                            Double capacidadPesoKg,
+                            Double capacidadVolumenM3,
+                            Double consumoCombustiblePorKm,
+                            Double costoBasePorKm,
+                            String estado) {}
 
     public record RestTemplatePatchRequest(String estado) {}
 }

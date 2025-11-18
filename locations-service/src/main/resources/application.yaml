@@ -1,3 +1,9 @@
 spring:
   application:
     name: locations-service
+
+google:
+  maps:
+    distance-matrix:
+      base-url: https://maps.googleapis.com/maps/api/distancematrix/json
+      api-key: ${GOOGLE_MAPS_API_KEY}

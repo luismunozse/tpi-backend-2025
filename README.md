@@ -9,7 +9,7 @@ Arquitectura
 - **api-gateway**: puerta de entrada al backend. Valida JWT de Keycloak y enruta hacia los microservicios de dominio.
 - **orders-service**: gestiona solicitudes de transporte, contenedores, clientes y el ciclo de vida del envío. Orquesta llamadas a los demás servicios.
 - **fleet-service**: administra camiones, transportistas y mantenimientos. Expone endpoints para buscar camiones disponibles y actualizar su estado.
-- **locations-service**: maneja ciudades, depósitos, rutas y cálculo de distancias entre coordenadas.
+- **locations-service**: maneja ciudades, depósitos, rutas y cálculo de distancias entre coordenadas consumiendo la API externa **Google Maps Distance Matrix**.
 - **pricing-service**: administra tarifas y recargos, y calcula costos estimados y reales de los envíos.
 - **PostgreSQL**: una base por servicio (orders, fleet, locations, pricing).
 - **Keycloak**: servidor de identidad y gestión de roles (cliente, operador, transportista).
@@ -40,7 +40,7 @@ Ejecución con Docker Compose
 1. Ubicarse en la carpeta que contiene `docker-compose.yml`:
 
    ```bash
-   cd tpi-backend-2025/tpi-backend-2025
+   cd tpi-backend-2025/
    ```
 
 2. Levantar todos los contenedores (bases, servicios, gateway, Keycloak, pgadmin):
@@ -104,9 +104,87 @@ Flujo típico:
 1. Obtener un token desde Keycloak (`/realms/{realm}/protocol/openid-connect/token`) usando `grant_type=password` o `authorization_code`.
 2. Copiar el `access_token` en la variable `token` del environment.
 3. Invocar la API a través del gateway, por ejemplo:
-   - `POST {{gateway}}/api/ordenes` para crear una solicitud de transporte (cliente).
+   - `POST {{gateway}}/api/ordenes/solicitudes` para crear una solicitud de transporte (cliente).
    - `GET {{gateway}}/api/fleet/camiones/disponibles` para buscar camiones (operador).
    - `POST {{gateway}}/api/pricing/calculos/tarifa` para probar el cálculo de tarifa (operador).
+   - `GET {{gateway}}/api/ordenes/solicitudes/{id}/tracking` para ver el tracking de tramos de una solicitud.
+
+Se incluye una colección Postman lista para importar en `postman/TPI-Backend-2025.postman_collection.json`.
+
+Rutas principales de cada microservicio
+---------------------------------------
+
+Todas las rutas expuestas abajo se consumen normalmente vía API Gateway, anteponiendo `{{gateway}}` y el prefijo configurado en el gateway (`/api/ordenes`, `/api/fleet`, `/api/locations`, `/api/pricing`).
+
+- **Orders Service** (gestión de solicitudes de transporte)
+  - Crear solicitud: `POST /api/v1/solicitudes`
+  - Listar solicitudes: `GET /api/v1/solicitudes?estado={BORRADOR|PROGRAMADA|EN_TRANSITO|ENTREGADA|CANCELADA}`
+  - Obtener solicitud: `GET /api/v1/solicitudes/{id}`
+  - Actualizar estado de solicitud: `POST /api/v1/solicitudes/{id}/estado`
+  - Asignar camión a tramo: `POST /api/v1/solicitudes/{id}/tramos/{tramoId}/asignacion`
+  - Registrar inicio de tramo: `POST /api/v1/solicitudes/{id}/tramos/{tramoId}/inicio`
+  - Registrar fin de tramo (costo real opcional): `POST /api/v1/solicitudes/{id}/tramos/{tramoId}/fin?costoReal={valor}`
+  - Recalcular costo estimado: `POST /api/v1/solicitudes/{id}/recalcular`
+  - Tracking de tramos (ordenados por orden): `GET /api/v1/solicitudes/{id}/tracking`
+
+- **Fleet Service** (flota de camiones y transportistas)
+  - Camiones:
+    - Listar camiones: `GET /api/v1/camiones?estado={DISPONIBLE|OCUPADO}`
+    - Listar camiones disponibles aptos para un contenedor: `GET /api/v1/camiones/disponibles?peso={kg}&volumen={m3}`
+    - Obtener camión por id: `GET /api/v1/camiones/{id}`
+    - Crear camión: `POST /api/v1/camiones`
+    - Actualizar camión: `PUT /api/v1/camiones/{id}`
+    - Actualizar estado de camión: `PATCH /api/v1/camiones/{id}/estado`
+    - Eliminar camión: `DELETE /api/v1/camiones/{id}`
+  - Transportistas y mantenimientos disponen de endpoints CRUD similares bajo `/api/v1/transportistas` y `/api/v1/mantenimientos`.
+
+- **Locations Service** (ubicaciones, depósitos y rutas)
+  - Ciudades: CRUD bajo `/api/v1/ciudades`
+  - Provincias: CRUD bajo `/api/v1/provincias`
+  - Depósitos: CRUD bajo `/api/v1/depositos`
+  - Rutas y tramos: CRUD bajo `/api/v1/rutas`
+  - Cálculo de distancias (Google Distance Matrix):
+    - `POST /api/v1/distancias/calcular`
+      - Body:
+        ```json
+        {
+          "origen": { "latitud": -31.4, "longitud": -64.18 },
+          "destino": { "latitud": -34.6, "longitud": -58.38 }
+        }
+        ```
+
+- **Pricing Service** (tarifas y cálculo de costos)
+  - Tarifa base: CRUD bajo `/api/v1/tarifas/base`
+  - Tarifas de depósito: CRUD bajo `/api/v1/tarifas/depositos`
+  - Recargos: CRUD bajo `/api/v1/tarifas/recargos`
+  - Cálculo de tarifa:
+    - `POST /api/v1/calculos/tarifa`
+      - Request típico:
+        ```json
+        {
+          "distanciaTotalKm": 700,
+          "distanciaRecorridaPorCamionKm": 700,
+          "pesoContenedorKg": 5000,
+          "volumenContenedorM3": 25,
+          "consumoCamionLtsPorKm": 0.35,
+          "costoCombustiblePorLitro": null,
+          "cantidadTramos": 3,
+          "diasTotalesEnDeposito": 0,
+          "recargosAplicados": []
+        }
+        ```
+
+Swagger / documentación de APIs
+-------------------------------
+
+Cada microservicio expone su propia documentación OpenAPI/Swagger (vía `springdoc-openapi`):
+
+- Orders Service: `http://localhost:8083/swagger-ui.html`
+- Fleet Service: `http://localhost:8084/swagger-ui.html`
+- Locations Service: `http://localhost:8085/swagger-ui.html`
+- Pricing Service: `http://localhost:8086/swagger-ui.html`
+
+Desde ahí podés explorar todos los endpoints, ver los modelos de request/response y probar llamadas directamente desde Swagger UI (teniendo en cuenta la autenticación mediante bearer token cuando sea necesario).
 
 Detalles funcionales clave
 --------------------------

@@ -1,5 +1,6 @@
 package ar.edu.utn.frc.backend.tpi.pricing.service;
 
+import ar.edu.utn.frc.backend.tpi.pricing.config.PricingProperties;
 import ar.edu.utn.frc.backend.tpi.pricing.dto.CalculoTarifaRequestDto;
 import ar.edu.utn.frc.backend.tpi.pricing.dto.CalculoTarifaResponseDto;
 import ar.edu.utn.frc.backend.tpi.pricing.model.RecargoTarifa;
@@ -26,6 +27,7 @@ public class CalculoTarifaService {
     private final TarifaBaseRepository tarifaBaseRepository;
     private final TarifaDepositoRepository tarifaDepositoRepository;
     private final RecargoTarifaRepository recargoTarifaRepository;
+    private final PricingProperties pricingProperties;
 
     public CalculoTarifaResponseDto calcularTarifa(CalculoTarifaRequestDto request) {
         validarRequest(request);
@@ -97,7 +99,10 @@ public class CalculoTarifaService {
 
     private double calcularCostoCombustible(CalculoTarifaRequestDto request) {
         double consumo = request.getConsumoCamionLtsPorKm() != null ? request.getConsumoCamionLtsPorKm() : 0.0;
-        double costoLitro = request.getCostoCombustiblePorLitro() != null ? request.getCostoCombustiblePorLitro() : 0.0;
+        Double costoLitroConfig = pricingProperties.getCostoLitro();
+        double costoLitro = request.getCostoCombustiblePorLitro() != null
+                ? request.getCostoCombustiblePorLitro()
+                : (costoLitroConfig != null ? costoLitroConfig : 0.0);
         double distancia = request.getDistanciaRecorridaPorCamionKm() != null
                 ? request.getDistanciaRecorridaPorCamionKm()
                 : request.getDistanciaTotalKm();

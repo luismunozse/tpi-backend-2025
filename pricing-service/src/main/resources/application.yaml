@@ -6,3 +6,6 @@ spring:
   sql:
     init:
       mode: always
+pricing:
+  combustible:
+    costo-litro: ${PRICING_COMBUSTIBLE_COSTO_LITRO:1.0}

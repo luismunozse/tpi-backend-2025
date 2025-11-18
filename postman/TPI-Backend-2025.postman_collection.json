@@ -1,0 +1,98 @@
+{
+  "info": {
+    "name": "TPI Backend 2025",
+    "_postman_id": "00000000-0000-0000-0000-000000000000",
+    "description": "Colección de pruebas para API Gateway y microservicios del TPI Backend 2025.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Obtener token Keycloak",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "grant_type", "value": "password" },
+            { "key": "client_id", "value": "tpi-backend-client" },
+            { "key": "username", "value": "{{kc_username}}" },
+            { "key": "password", "value": "{{kc_password}}" }
+          ]
+        },
+        "url": {
+          "raw": "{{keycloak}}/realms/{{realm}}/protocol/openid-connect/token",
+          "host": ["{{keycloak}}"],
+          "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+        }
+      }
+    },
+    {
+      "name": "Orders - Crear solicitud transporte",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"emailCliente\": \"cliente@example.com\",\n  \"nombreCliente\": \"Cliente Demo\",\n  \"telefonoCliente\": \"123456\",\n  \"identificadorContenedor\": \"CONT-001\",\n  \"pesoContenedorKg\": 5000,\n  \"volumenContenedorM3\": 25,\n  \"tramos\": []\n}"
+        },
+        "url": {
+          "raw": "{{gateway}}/api/ordenes/solicitudes",
+          "host": ["{{gateway}}"],
+          "path": ["api", "ordenes", "solicitudes"]
+        }
+      }
+    },
+    {
+      "name": "Locations - Calcular distancia",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origen\": {\"latitud\": -31.4, \"longitud\": -64.18},\n  \"destino\": {\"latitud\": -34.6, \"longitud\": -58.38}\n}"
+        },
+        "url": {
+          "raw": "{{gateway}}/api/locations/distancias/calcular",
+          "host": ["{{gateway}}"],
+          "path": ["api", "locations", "distancias", "calcular"]
+        }
+      }
+    },
+    {
+      "name": "Orders - Tracking solicitud",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{gateway}}/api/ordenes/solicitudes/{{solicitudId}}/tracking",
+          "host": ["{{gateway}}"],
+          "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}", "tracking"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "gateway", "value": "http://localhost:8080" },
+    { "key": "keycloak", "value": "http://localhost:8081" },
+    { "key": "realm", "value": "tpi-backend" },
+    { "key": "kc_username", "value": "usuario" },
+    { "key": "kc_password", "value": "password" },
+    { "key": "token", "value": "" },
+    { "key": "solicitudId", "value": "1" }
+  ]
+}
+
