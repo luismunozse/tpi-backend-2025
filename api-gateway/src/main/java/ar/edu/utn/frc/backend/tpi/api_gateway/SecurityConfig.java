@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/ordenes/**").hasAnyRole("CLIENTE", "OPERADOR")
                         .requestMatchers("/api/fleet/**").hasAnyRole("OPERADOR")
                         .requestMatchers("/api/pricing/**").hasAnyRole("OPERADOR")
