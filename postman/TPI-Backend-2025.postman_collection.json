@@ -1,90 +1,10 @@
 {
   "info": {
     "name": "TPI Backend 2025",
-    "_postman_id": "00000000-0000-0000-0000-000000000000",
-    "description": "Colección de pruebas para API Gateway y microservicios del TPI Backend 2025.",
+    "_postman_id": "11111111-1111-1111-1111-111111111111",
+    "description": "Colección de pruebas completa para el TPI Backend 2025, vía API Gateway.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "item": [
-    {
-      "name": "Auth - Obtener token Keycloak",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/x-www-form-urlencoded"
-          }
-        ],
-        "body": {
-          "mode": "urlencoded",
-          "urlencoded": [
-            { "key": "grant_type", "value": "password" },
-            { "key": "client_id", "value": "tpi-backend-client" },
-            { "key": "username", "value": "{{kc_username}}" },
-            { "key": "password", "value": "{{kc_password}}" }
-          ]
-        },
-        "url": {
-          "raw": "{{keycloak}}/realms/{{realm}}/protocol/openid-connect/token",
-          "host": ["{{keycloak}}"],
-          "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
-        }
-      }
-    },
-    {
-      "name": "Orders - Crear solicitud transporte",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "Authorization", "value": "Bearer {{token}}" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"emailCliente\": \"cliente@example.com\",\n  \"nombreCliente\": \"Cliente Demo\",\n  \"telefonoCliente\": \"123456\",\n  \"identificadorContenedor\": \"CONT-001\",\n  \"pesoContenedorKg\": 5000,\n  \"volumenContenedorM3\": 25,\n  \"tramos\": []\n}"
-        },
-        "url": {
-          "raw": "{{gateway}}/api/ordenes/solicitudes",
-          "host": ["{{gateway}}"],
-          "path": ["api", "ordenes", "solicitudes"]
-        }
-      }
-    },
-    {
-      "name": "Locations - Calcular distancia",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "Authorization", "value": "Bearer {{token}}" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"origen\": {\"latitud\": -31.4, \"longitud\": -64.18},\n  \"destino\": {\"latitud\": -34.6, \"longitud\": -58.38}\n}"
-        },
-        "url": {
-          "raw": "{{gateway}}/api/locations/distancias/calcular",
-          "host": ["{{gateway}}"],
-          "path": ["api", "locations", "distancias", "calcular"]
-        }
-      }
-    },
-    {
-      "name": "Orders - Tracking solicitud",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{token}}" }
-        ],
-        "url": {
-          "raw": "{{gateway}}/api/ordenes/solicitudes/{{solicitudId}}/tracking",
-          "host": ["{{gateway}}"],
-          "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}", "tracking"]
-        }
-      }
-    }
-  ],
   "variable": [
     { "key": "gateway", "value": "http://localhost:8080" },
     { "key": "keycloak", "value": "http://localhost:8081" },
@@ -92,7 +12,596 @@
     { "key": "kc_username", "value": "usuario" },
     { "key": "kc_password", "value": "password" },
     { "key": "token", "value": "" },
-    { "key": "solicitudId", "value": "1" }
+    { "key": "solicitudId", "value": "1" },
+    { "key": "tramoId", "value": "1" },
+    { "key": "camionId", "value": "1" },
+    { "key": "tarifaBaseId", "value": "1" },
+    { "key": "tarifaDepositoId", "value": "1" },
+    { "key": "recargoId", "value": "1" },
+    { "key": "ciudadId", "value": "1" },
+    { "key": "provinciaId", "value": "1" },
+    { "key": "depositoId", "value": "1" },
+    { "key": "rutaId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Obtener token (password grant)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "tpi-backend-client" },
+                { "key": "username", "value": "{{kc_username}}" },
+                { "key": "password", "value": "{{kc_password}}" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloak}}/realms/{{realm}}/protocol/openid-connect/token",
+              "host": ["{{keycloak}}"],
+              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders Service (via Gateway)",
+      "item": [
+        {
+          "name": "Crear solicitud de transporte",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailCliente\": \"cliente@example.com\",\n  \"nombreCliente\": \"Cliente Demo\",\n  \"telefonoCliente\": \"123456\",\n  \"identificadorContenedor\": \"CONT-001\",\n  \"pesoContenedorKg\": 5000,\n  \"volumenContenedorM3\": 25,\n  \"tramos\": [\n    {\n      \"orden\": 1,\n      \"tipo\": \"RETIRO\",\n      \"origenNombre\": \"Deposito Origen\",\n      \"destinoNombre\": \"Deposito Intermedio\",\n      \"origenLatitud\": -31.4,\n      \"origenLongitud\": -64.18,\n      \"destinoLatitud\": -34.6,\n      \"destinoLongitud\": -58.38,\n      \"distanciaEstimadaKm\": 700,\n      \"duracionEstimadaHoras\": 10\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes"]
+            }
+          }
+        },
+        {
+          "name": "Listar solicitudes (opcional filtro estado)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes?estado=",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes"],
+              "query": [
+                { "key": "estado", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener solicitud por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/{{solicitudId}}",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar estado de solicitud",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"PROGRAMADA\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/{{solicitudId}}/estado",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "Asignar camión a tramo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"camionId\": {{camionId}}\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/{{solicitudId}}/tramos/{{tramoId}}/asignacion",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}", "tramos", "{{tramoId}}", "asignacion"]
+            }
+          }
+        },
+        {
+          "name": "Iniciar tramo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/{{solicitudId}}/tramos/{{tramoId}}/inicio",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}", "tramos", "{{tramoId}}", "inicio"]
+            }
+          }
+        },
+        {
+          "name": "Finalizar tramo (costo real opcional)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/{{solicitudId}}/tramos/{{tramoId}}/fin?costoReal=",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}", "tramos", "{{tramoId}}", "fin"],
+              "query": [
+                { "key": "costoReal", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Recalcular costo estimado",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/{{solicitudId}}/recalcular",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}", "recalcular"]
+            }
+          }
+        },
+        {
+          "name": "Tracking de tramos (ordenados)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/{{solicitudId}}/tracking",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}", "tracking"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fleet Service (via Gateway)",
+      "item": [
+        {
+          "name": "Camiones - Listar (opcional estado)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/fleet/camiones?estado=",
+              "host": ["{{gateway}}"],
+              "path": ["api", "fleet", "camiones"],
+              "query": [
+                { "key": "estado", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Camiones - Disponibles (filtrar por capacidad)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/fleet/camiones/disponibles?peso=5000&volumen=25",
+              "host": ["{{gateway}}"],
+              "path": ["api", "fleet", "camiones", "disponibles"],
+              "query": [
+                { "key": "peso", "value": "5000" },
+                { "key": "volumen", "value": "25" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Camiones - Ocupados",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/fleet/camiones/ocupados",
+              "host": ["{{gateway}}"],
+              "path": ["api", "fleet", "camiones", "ocupados"]
+            }
+          }
+        },
+        {
+          "name": "Camiones - Obtener por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/fleet/camiones/{{camionId}}",
+              "host": ["{{gateway}}"],
+              "path": ["api", "fleet", "camiones", "{{camionId}}"]
+            }
+          }
+        },
+        {
+          "name": "Camiones - Crear",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dominio\": \"AAA123\",\n  \"capacidadPesoKg\": 8000,\n  \"capacidadVolumenM3\": 40,\n  \"consumoCombustiblePorKm\": 0.35,\n  \"costoBasePorKm\": 100,\n  \"estado\": \"DISPONIBLE\",\n  \"transportista\": null\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/fleet/camiones",
+              "host": ["{{gateway}}"],
+              "path": ["api", "fleet", "camiones"]
+            }
+          }
+        },
+        {
+          "name": "Camiones - Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{camionId}},\n  \"dominio\": \"AAA123\",\n  \"capacidadPesoKg\": 8000,\n  \"capacidadVolumenM3\": 40,\n  \"consumoCombustiblePorKm\": 0.35,\n  \"costoBasePorKm\": 100,\n  \"estado\": \"DISPONIBLE\",\n  \"transportista\": null\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/fleet/camiones/{{camionId}}",
+              "host": ["{{gateway}}"],
+              "path": ["api", "fleet", "camiones", "{{camionId}}"]
+            }
+          }
+        },
+        {
+          "name": "Camiones - Actualizar estado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"DISPONIBLE\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/fleet/camiones/{{camionId}}/estado",
+              "host": ["{{gateway}}"],
+              "path": ["api", "fleet", "camiones", "{{camionId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "Camiones - Eliminar",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/fleet/camiones/{{camionId}}",
+              "host": ["{{gateway}}"],
+              "path": ["api", "fleet", "camiones", "{{camionId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Locations Service (via Gateway)",
+      "item": [
+        {
+          "name": "Ciudades - Listar",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/locations/ciudades",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "ciudades"]
+            }
+          }
+        },
+        {
+          "name": "Ciudades - Crear",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cordoba\",\n  \"codigoPostal\": \"5000\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/locations/ciudades",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "ciudades"]
+            }
+          }
+        },
+        {
+          "name": "Provincias - Listar",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/locations/provincias",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "provincias"]
+            }
+          }
+        },
+        {
+          "name": "Depósitos - Listar",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/locations/depositos",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "depositos"]
+            }
+          }
+        },
+        {
+          "name": "Depósitos - Crear",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Deposito Central\",\n  \"direccion\": \"Calle Falsa 123\",\n  \"ciudadId\": {{ciudadId}}\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/locations/depositos",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "depositos"]
+            }
+          }
+        },
+        {
+          "name": "Rutas - Listar",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/locations/rutas",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "rutas"]
+            }
+          }
+        },
+        {
+          "name": "Rutas - Crear (simple)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ruta Ejemplo\",\n  \"descripcion\": \"Ruta de prueba\",\n  \"tramos\": []\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/locations/rutas",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "rutas"]
+            }
+          }
+        },
+        {
+          "name": "Calcular distancia (Google Distance Matrix)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origen\": { \"latitud\": -31.4, \"longitud\": -64.18 },\n  \"destino\": { \"latitud\": -34.6, \"longitud\": -58.38 }\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/locations/distancias/calcular",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "distancias", "calcular"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pricing Service (via Gateway)",
+      "item": [
+        {
+          "name": "Tarifas base - Listar",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/pricing/tarifas/base",
+              "host": ["{{gateway}}"],
+              "path": ["api", "pricing", "tarifas", "base"]
+            }
+          }
+        },
+        {
+          "name": "Tarifas base - Crear",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoCamion\": \"MEDIANO\",\n  \"rangoPesoMinKg\": 0,\n  \"rangoPesoMaxKg\": 8000,\n  \"rangoVolumenMinM3\": 0,\n  \"rangoVolumenMaxM3\": 40,\n  \"costoPorKilometro\": 150,\n  \"costoPorKilometroCombustible\": 0,\n  \"costoFijoGestion\": 50\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/pricing/tarifas/base",
+              "host": ["{{gateway}}"],
+              "path": ["api", "pricing", "tarifas", "base"]
+            }
+          }
+        },
+        {
+          "name": "Tarifas depósito - Listar",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/pricing/tarifas/depositos",
+              "host": ["{{gateway}}"],
+              "path": ["api", "pricing", "tarifas", "depositos"]
+            }
+          }
+        },
+        {
+          "name": "Tarifas depósito - Crear",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cargoPorIngreso\": 100,\n  \"cargoPorSalida\": 100,\n  \"costoPorDia\": 50\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/pricing/tarifas/depositos",
+              "host": ["{{gateway}}"],
+              "path": ["api", "pricing", "tarifas", "depositos"]
+            }
+          }
+        },
+        {
+          "name": "Recargos - Listar",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{gateway}}/api/pricing/tarifas/recargos",
+              "host": ["{{gateway}}"],
+              "path": ["api", "pricing", "tarifas", "recargos"]
+            }
+          }
+        },
+        {
+          "name": "Recargos - Crear",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Recargo combustible\",\n  \"porcentaje\": 10,\n  \"montoFijo\": 0\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/pricing/tarifas/recargos",
+              "host": ["{{gateway}}"],
+              "path": ["api", "pricing", "tarifas", "recargos"]
+            }
+          }
+        },
+        {
+          "name": "Calcular tarifa",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"distanciaTotalKm\": 700,\n  \"distanciaRecorridaPorCamionKm\": 700,\n  \"pesoContenedorKg\": 5000,\n  \"volumenContenedorM3\": 25,\n  \"consumoCamionLtsPorKm\": 0.35,\n  \"costoCombustiblePorLitro\": null,\n  \"cantidadTramos\": 3,\n  \"diasTotalesEnDeposito\": 0,\n  \"recargosAplicados\": []\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/pricing/calculos/tarifa",
+              "host": ["{{gateway}}"],
+              "path": ["api", "pricing", "calculos", "tarifa"]
+            }
+          }
+        }
+      ]
+    }
   ]
 }
-
