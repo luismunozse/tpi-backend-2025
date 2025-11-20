@@ -30,11 +30,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/ordenes/**").hasAnyRole("CLIENTE", "OPERADOR")
-                        .requestMatchers("/api/fleet/**").hasAnyRole("OPERADOR")
-                        .requestMatchers("/api/pricing/**").hasAnyRole("OPERADOR")
-                        .requestMatchers("/api/locations/**").hasAnyRole("OPERADOR", "TRANSPORTISTA")
+                        // Endpoints públicos de autenticación
+                        .requestMatchers("/auth/login").permitAll()
+                        // Solo admin puede registrar nuevos usuarios
+                        .requestMatchers("/auth/register").hasRole("ADMIN")
+                        // Autorización por endpoint según roles del enunciado
+                        .requestMatchers("/api/ordenes/**").hasAnyRole("CLIENTE", "ADMIN")
+                        .requestMatchers("/api/fleet/**").hasRole("ADMIN")
+                        .requestMatchers("/api/pricing/**").hasRole("ADMIN")
+                        .requestMatchers("/api/locations/**").hasAnyRole("ADMIN", "TRANSPORTISTA")
                         .anyRequest().authenticated()
                 );
         return http.build();
@@ -55,7 +59,6 @@ public class SecurityConfig {
                 .collect(Collectors.toList());
     }
 
-    @SuppressWarnings("unchecked")
     private List<String> extractRealmRoles(Jwt jwt) {
         Map<String, Object> realmAccess = jwt.getClaim("realm_access");
         if (realmAccess == null) {

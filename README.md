@@ -27,11 +27,11 @@ Compilación local
 Desde la carpeta raíz del repo (`tpi-backend-2025`), compilar cada microservicio:
 
 ```bash
-cd api-gateway && mvn clean package -DskipTests
-cd ../orders-service && mvn clean package -DskipTests
-cd ../fleet-service && mvn clean package -DskipTests
-cd ../locations-service && mvn clean package -DskipTests
-cd ../pricing-service && mvn clean package -DskipTests
+cd api-gateway ; mvn clean package -DskipTests
+cd ../orders-service ; mvn clean package -DskipTests
+cd ../fleet-service ; mvn clean package -DskipTests
+cd ../locations-service ; mvn clean package -DskipTests
+cd ../pricing-service ; mvn clean package -DskipTests
 ```
 
 Ejecución con Docker Compose
@@ -40,7 +40,7 @@ Ejecución con Docker Compose
 1. Ubicarse en la carpeta que contiene `docker-compose.yml`:
 
    ```bash
-   cd tpi-backend-2025/
+   cd ..
    ```
 
 2. Levantar todos los contenedores (bases, servicios, gateway, Keycloak, pgadmin):
@@ -69,23 +69,44 @@ Ejecución con Docker Compose
 Configuración de Keycloak (resumen)
 -----------------------------------
 
-1. Crear un **realm** (por ejemplo `tpi-backend`), o usar el que ya tengas configurado según el instructivo de la cátedra.
+1. Crear un **realm**: `tpi-backend` (según el instructivo de la cátedra).
 2. Crear un **client**:
    - `Client ID`: `tpi-backend-client`
-   - Tipo: OpenID Connect.
+   - Tipo: OpenID Connect (public client)
    - Redirect URIs: `http://localhost:8080/*`
-   - Habilitar `Standard flow` (authorization_code) y/o `Direct access grants` (password) según el flujo que quieras usar desde Postman.
-3. Crear roles de realm para los tres perfiles:
-   - `cliente`
-   - `operador`
-   - `transportista`
-4. Crear usuarios y asignarles el/los roles correspondientes.
+   - Habilitar `Direct access grants` (password) para login desde Postman
+3. Crear **roles de realm** para los tres perfiles del sistema:
+   - `cliente` - Usuarios finales que solicitan transporte
+   - `admin` - Administradores/operadores que gestionan el sistema
+   - `transportista` - Choferes que ejecutan los traslados
+4. Crear **usuarios** y asignarles roles:
+   - Los usuarios `admin` pueden crear nuevos usuarios `cliente` mediante `/auth/register`
+   - Los usuarios deben crearse manualmente en Keycloak o via endpoint protegido
 
-El API Gateway está configurado como **resource server** y valida tokens JWT usando el endpoint JWKS de Keycloak. La autorización por ruta se realiza en `SecurityConfig`, por ejemplo:
+### Seguridad y Autenticación
 
-- `/api/ordenes/**` → requiere rol `CLIENTE` u `OPERADOR`.
-- `/api/fleet/**` y `/api/pricing/**` → rol `OPERADOR`.
-- `/api/locations/**` → rol `OPERADOR` o `TRANSPORTISTA`.
+El API Gateway está configurado como **OAuth2 Resource Server** y valida tokens JWT usando el endpoint JWKS de Keycloak.
+
+**Autorización por rol**:
+- `/auth/login` → público (sin autenticación)
+- `/auth/register` → solo `ADMIN` (para crear usuarios cliente)
+- `/api/ordenes/**` → `CLIENTE` o `ADMIN`
+- `/api/fleet/**` → solo `ADMIN`
+- `/api/pricing/**` → solo `ADMIN`
+- `/api/locations/**` → `ADMIN` o `TRANSPORTISTA`
+
+### Propagación de Información del Usuario
+
+**Según el enunciado**: "Que el userId deje de ser un string arbitrario y pase a ser el usuario autenticado"
+
+El Gateway **extrae automáticamente** la información del usuario autenticado del JWT y la propaga a los microservicios mediante headers HTTP:
+
+- `X-User-Id`: ID único del usuario (claim `sub` del JWT)
+- `X-Username`: Nombre de usuario (claim `preferred_username`)
+- `X-User-Email`: Email del usuario (claim `email`)
+- `X-User-Roles`: Roles separados por coma
+
+**Los microservicios NO validan OAuth2**. Solo reciben estos headers y confían en la validación del Gateway. Esto cumple con el principio didáctico: "La clave es que no modificamos los microservicios para entender OAuth2: ellos siguen viendo solo HTTP + headers. El que entiende de seguridad es el gateway."
 
 Consumo de la API con Postman
 -----------------------------

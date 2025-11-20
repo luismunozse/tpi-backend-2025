@@ -26,6 +26,21 @@ public class KeycloakProperties {
      */
     private String clientSecret = "";
 
+    /**
+     * Admin username used to call Keycloak Admin API.
+     */
+    private String adminUsername = "admin";
+
+    /**
+     * Admin password used to call Keycloak Admin API.
+     */
+    private String adminPassword = "admin";
+
+    /**
+     * Default realm role to assign to newly registered users.
+     */
+    private String defaultClientRole = "cliente";
+
     public String getServerUrl() {
         return serverUrl;
     }
@@ -58,8 +73,42 @@ public class KeycloakProperties {
         this.clientSecret = clientSecret;
     }
 
+    public String getAdminUsername() {
+        return adminUsername;
+    }
+
+    public void setAdminUsername(String adminUsername) {
+        this.adminUsername = adminUsername;
+    }
+
+    public String getAdminPassword() {
+        return adminPassword;
+    }
+
+    public void setAdminPassword(String adminPassword) {
+        this.adminPassword = adminPassword;
+    }
+
+    public String getDefaultClientRole() {
+        return defaultClientRole;
+    }
+
+    public void setDefaultClientRole(String defaultClientRole) {
+        this.defaultClientRole = defaultClientRole;
+    }
+
     public String getTokenUrl() {
         String base = StringUtils.trimTrailingCharacter(getServerUrl(), '/');
         return base + "/realms/" + getRealm() + "/protocol/openid-connect/token";
+    }
+
+    public String getAdminUsersUrl() {
+        String base = StringUtils.trimTrailingCharacter(getServerUrl(), '/');
+        return base + "/admin/realms/" + getRealm() + "/users";
+    }
+
+    public String getAdminRolesUrl() {
+        String base = StringUtils.trimTrailingCharacter(getServerUrl(), '/');
+        return base + "/admin/realms/" + getRealm() + "/roles";
     }
 }

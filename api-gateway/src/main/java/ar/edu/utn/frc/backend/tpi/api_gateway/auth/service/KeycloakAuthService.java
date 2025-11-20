@@ -16,8 +16,6 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Objects;
-
 @Service
 public class KeycloakAuthService {
 
@@ -50,15 +48,24 @@ public class KeycloakAuthService {
                     entity,
                     KeycloakTokenResponse.class
             );
-            return Objects.requireNonNull(response.getBody(), "La respuesta de Keycloak no contiene cuerpo");
-        } catch (RestClientResponseException ex) {
-            HttpStatus status = HttpStatus.resolve(ex.getRawStatusCode());
-            if (status == HttpStatus.BAD_REQUEST || status == HttpStatus.UNAUTHORIZED) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas", ex);
+            KeycloakTokenResponse body = response.getBody();
+            if (body == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Keycloak respondió sin cuerpo al solicitar el token");
             }
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Error al comunicarse con Keycloak", ex);
+            return body;
+        } catch (RestClientResponseException ex) {
+            throw mapToStatus(ex);
         } catch (RestClientException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Error al comunicarse con Keycloak", ex);
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo contactar a Keycloak (login)", ex);
         }
+    }
+
+    private ResponseStatusException mapToStatus(RestClientResponseException ex) {
+        int statusCode = ex.getStatusCode().value();
+        HttpStatus status = HttpStatus.resolve(statusCode);
+        if (status == HttpStatus.BAD_REQUEST || status == HttpStatus.UNAUTHORIZED || status == HttpStatus.FORBIDDEN) {
+            return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas", ex);
+        }
+        return new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Error al comunicarse con Keycloak (login): " + statusCode, ex);
     }
 }

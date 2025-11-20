@@ -5,11 +5,13 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${KEYCLOAK_JWKS_URI:http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs}
+          jwk-set-uri: ${KEYCLOAK_JWKS_URI:http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs}
   cloud:
     gateway:
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        # Propagar información del usuario autenticado a los microservicios
+        - AddRequestHeadersIfNotPresent=X-User-Id:{request.getAttribute('X-User-Id')},X-Username:{request.getAttribute('X-Username')},X-User-Email:{request.getAttribute('X-User-Email')},X-User-Roles:{request.getAttribute('X-User-Roles')}
       routes:
         - id: orders-service
           uri: ${TPI_ORDERS_SERVICE_URL:http://localhost:8083}
@@ -41,6 +43,9 @@ spring:
 
 keycloak:
   server-url: ${KEYCLOAK_SERVER_URL:http://keycloak:8080}
-  realm: ${KEYCLOAK_REALM:tpi-realm}
+  realm: ${KEYCLOAK_REALM:tpi-backend}
   client-id: ${KEYCLOAK_CLIENT_ID:tpi-backend-client}
   client-secret: ${KEYCLOAK_CLIENT_SECRET:}
+  admin-username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+  admin-password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+  default-client-role: ${KEYCLOAK_DEFAULT_CLIENT_ROLE:cliente}

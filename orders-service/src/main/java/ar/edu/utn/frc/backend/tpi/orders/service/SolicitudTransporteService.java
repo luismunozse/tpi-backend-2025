@@ -10,7 +10,6 @@ import ar.edu.utn.frc.backend.tpi.orders.dto.SolicitudTransporteDto;
 import ar.edu.utn.frc.backend.tpi.orders.dto.TramoDto;
 import ar.edu.utn.frc.backend.tpi.orders.exception.NegocioException;
 import ar.edu.utn.frc.backend.tpi.orders.exception.RecursoNoEncontradoException;
-import ar.edu.utn.frc.backend.tpi.orders.mapper.RutaMapper;
 import ar.edu.utn.frc.backend.tpi.orders.mapper.SolicitudTransporteMapper;
 import ar.edu.utn.frc.backend.tpi.orders.mapper.TramoMapper;
 import ar.edu.utn.frc.backend.tpi.orders.model.Cliente;

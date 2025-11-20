@@ -1,7 +1,6 @@
 package ar.edu.utn.frc.backend.tpi.locations.mapper;
 
 import ar.edu.utn.frc.backend.tpi.locations.dto.TramoDto;
-import ar.edu.utn.frc.backend.tpi.locations.model.Coordenada;
 import ar.edu.utn.frc.backend.tpi.locations.model.Deposito;
 import ar.edu.utn.frc.backend.tpi.locations.model.TipoTramo;
 import ar.edu.utn.frc.backend.tpi.locations.model.Tramo;
