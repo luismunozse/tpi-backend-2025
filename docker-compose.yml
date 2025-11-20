@@ -148,6 +148,13 @@ services:
     ports:
       - "8080:8080"
     environment:
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: tpi-backend
+      KEYCLOAK_CLIENT_ID: tpi-backend-client
+      KEYCLOAK_CLIENT_SECRET: ""
+      KEYCLOAK_ADMIN_USERNAME: admin03
+      KEYCLOAK_ADMIN_PASSWORD: clave123
+      KEYCLOAK_DEFAULT_CLIENT_ROLE: cliente
       KEYCLOAK_JWKS_URI: http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs
       TPI_ORDERS_SERVICE_URL: http://orders-service:8080
       TPI_FLEET_SERVICE_URL: http://fleet-service:8080
@@ -252,3 +259,5 @@ networks:
   tpi-network:
     name: tpi-network
     driver: bridge
+
+
