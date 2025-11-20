@@ -1,3 +1,4 @@
 # Env files contain secrets/keys and must stay local
 .env
 .env.local
+.claude/
