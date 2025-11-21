@@ -167,7 +167,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"emailCliente\": \"cliente@example.com\",\n  \"nombreCliente\": \"Cliente Demo\",\n  \"telefonoCliente\": \"123456789\",\n  \"identificadorContenedor\": \"CONT-001\",\n  \"pesoContenedorKg\": 5000,\n  \"volumenContenedorM3\": 25,\n  \"tramos\": [\n    {\n      \"orden\": 1,\n      \"tipo\": \"TRANSPORTE\",\n      \"origenNombre\": \"Córdoba Capital\",\n      \"destinoNombre\": \"Buenos Aires\",\n      \"origenLatitud\": -31.4201,\n      \"origenLongitud\": -64.1888,\n      \"destinoLatitud\": -34.6037,\n      \"destinoLongitud\": -58.3816,\n      \"distanciaEstimadaKm\": 700,\n      \"duracionEstimadaHoras\": 10\n    }\n  ]\n}"
+              "raw": "{\n  \"emailCliente\": \"cliente@example.com\",\n  \"nombreCliente\": \"Cliente Demo\",\n  \"telefonoCliente\": \"123456789\",\n  \"identificadorContenedor\": \"CONT-001\",\n  \"pesoContenedorKg\": 5000,\n  \"volumenContenedorM3\": 25,\n  \"tramos\": [\n    {\n      \"orden\": 1,\n      \"tipo\": \"ORIGEN_DESTINO\",\n      \"origenNombre\": \"Córdoba Capital\",\n      \"destinoNombre\": \"Buenos Aires\",\n      \"origenLatitud\": -31.4201,\n      \"origenLongitud\": -64.1888,\n      \"destinoLatitud\": -34.6037,\n      \"destinoLongitud\": -58.3816,\n      \"distanciaEstimadaKm\": 700,\n      \"duracionEstimadaHoras\": 10\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{gateway}}/api/ordenes/solicitudes",
@@ -175,6 +175,44 @@
               "path": ["api", "ordenes", "solicitudes"]
             },
             "description": "Crea una nueva solicitud de transporte.\n\n**Roles permitidos:** CLIENTE, ADMIN\n\n**Headers propagados del JWT:**\n- X-User-Id: ID del usuario autenticado\n- X-Username: Username del usuario\n- X-User-Email: Email del usuario"
+          },
+          "response": []
+        },
+        {
+          "name": "🔀 Crear solicitud con Ruta Alternativa (Vía Depósito)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.id) {",
+                  "        pm.collectionVariables.set('solicitudId', jsonData.id);",
+                  "        console.log('✅ Solicitud creada con ID: ' + jsonData.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailCliente\": \"cliente@example.com\",\n  \"nombreCliente\": \"Cliente Demo\",\n  \"telefonoCliente\": \"123456789\",\n  \"identificadorContenedor\": \"CONT-002\",\n  \"pesoContenedorKg\": 5000,\n  \"volumenContenedorM3\": 25,\n  \"tramos\": [\n    {\n      \"orden\": 1,\n      \"tipo\": \"ORIGEN_DEPOSITO\",\n      \"origenNombre\": \"Córdoba Capital\",\n      \"destinoNombre\": \"Depósito Rosario\",\n      \"origenLatitud\": -31.4201,\n      \"origenLongitud\": -64.1888,\n      \"destinoLatitud\": -32.9468,\n      \"destinoLongitud\": -60.6393,\n      \"distanciaEstimadaKm\": 398.2,\n      \"duracionEstimadaHoras\": 6.64\n    },\n    {\n      \"orden\": 2,\n      \"tipo\": \"DEPOSITO_DESTINO\",\n      \"origenNombre\": \"Depósito Rosario\",\n      \"destinoNombre\": \"Buenos Aires\",\n      \"origenLatitud\": -32.9468,\n      \"origenLongitud\": -60.6393,\n      \"destinoLatitud\": -34.6037,\n      \"destinoLongitud\": -58.3816,\n      \"distanciaEstimadaKm\": 302.5,\n      \"duracionEstimadaHoras\": 5.04\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes"]
+            },
+            "description": "Ejemplo de cómo crear una solicitud usando una ruta alternativa seleccionada.\n\n**Flujo completo:**\n1. Ejecutar 'Calcular Rutas Alternativas'\n2. Revisar las alternativas en la respuesta\n3. Seleccionar una ruta (ej: la recomendada)\n4. Copiar los tramos de esa ruta\n5. Usarlos en este request para crear la solicitud\n\n**En este ejemplo:**\n- Ruta: Córdoba → Depósito Rosario → Buenos Aires\n- 2 tramos: ORIGEN_DEPOSITO + DEPOSITO_DESTINO\n- Distancia total: ~700 km\n- Tiempo estimado: ~11.7 horas"
           },
           "response": []
         },
@@ -316,6 +354,69 @@
               "host": ["{{gateway}}"],
               "path": ["api", "ordenes", "solicitudes", "{{solicitudId}}", "recalcular"]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "🔀 Calcular Rutas Alternativas",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitudOrigen\": -31.4201,\n  \"longitudOrigen\": -64.1888,\n  \"latitudDestino\": -34.6037,\n  \"longitudDestino\": -58.3816,\n  \"pesoContenedorKg\": 5000,\n  \"volumenContenedorM3\": 25,\n  \"nombreOrigen\": \"Córdoba Capital\",\n  \"nombreDestino\": \"Buenos Aires\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/calcular-alternativas",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "calcular-alternativas"]
+            },
+            "description": "Calcula múltiples rutas alternativas entre origen y destino.\n\n**Funcionalidad:**\n- Genera ruta directa (sin depósitos)\n- Genera rutas con 1 depósito intermedio\n- Genera rutas con 2 depósitos intermedios\n- Calcula distancias reales usando Google Distance Matrix API\n- Calcula costos estimados para cada ruta\n- Ordena por costo (menor a mayor)\n- Marca la más económica como recomendada\n\n**Roles permitidos:** ADMIN, OPERADOR\n\n**Uso:**\n1. Ejecutar este endpoint para ver las opciones\n2. Seleccionar una ruta de las alternativas\n3. Usar los tramos de esa ruta para crear la solicitud"
+          },
+          "response": []
+        },
+        {
+          "name": "🔀 Ejemplo: Córdoba → Rosario → Buenos Aires",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitudOrigen\": -31.4201,\n  \"longitudOrigen\": -64.1888,\n  \"latitudDestino\": -34.6037,\n  \"longitudDestino\": -58.3816,\n  \"pesoContenedorKg\": 8000,\n  \"volumenContenedorM3\": 30,\n  \"nombreOrigen\": \"Córdoba Capital\",\n  \"nombreDestino\": \"CABA - Puerto Madero\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/calcular-alternativas",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "calcular-alternativas"]
+            },
+            "description": "Ejemplo con contenedor pesado (8 toneladas).\n\nSi existe un depósito en Rosario, debería generar:\n- Ruta 1: Directa Córdoba → Buenos Aires\n- Ruta 2: Córdoba → Depósito Rosario → Buenos Aires\n- Otras combinaciones según depósitos disponibles"
+          },
+          "response": []
+        },
+        {
+          "name": "🔀 Ejemplo: Ruta Corta (Córdoba → Villa María)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitudOrigen\": -31.4201,\n  \"longitudOrigen\": -64.1888,\n  \"latitudDestino\": -32.4115,\n  \"longitudDestino\": -63.2406,\n  \"pesoContenedorKg\": 3000,\n  \"volumenContenedorM3\": 15,\n  \"nombreOrigen\": \"Córdoba Capital\",\n  \"nombreDestino\": \"Villa María\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/ordenes/solicitudes/calcular-alternativas",
+              "host": ["{{gateway}}"],
+              "path": ["api", "ordenes", "solicitudes", "calcular-alternativas"]
+            },
+            "description": "Ejemplo con ruta corta (~140 km).\n\nPara distancias cortas, probablemente la ruta directa sea la más económica."
           },
           "response": []
         }
@@ -490,6 +591,69 @@
               "host": ["{{gateway}}"],
               "path": ["api", "locations", "depositos"]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear depósito (Ejemplo: Rosario)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Depósito Rosario\",\n  \"direccion\": \"Av. Circunvalación 1000\",\n  \"altura\": 1000,\n  \"coordenada\": {\n    \"latitud\": -32.9468,\n    \"longitud\": -60.6393\n  }\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/locations/depositos",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "depositos"]
+            },
+            "description": "Crea un depósito de ejemplo en Rosario.\n\n**Rol requerido:** ADMIN\n\n**Nota:** Necesitas tener depósitos creados para que el cálculo de rutas alternativas genere opciones con paradas intermedias."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear depósito (Ejemplo: Mendoza)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Depósito Mendoza\",\n  \"direccion\": \"Ruta 40 Km 2500\",\n  \"altura\": 2500,\n  \"coordenada\": {\n    \"latitud\": -32.8895,\n    \"longitud\": -68.8458\n  }\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/locations/depositos",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "depositos"]
+            },
+            "description": "Crea un depósito de ejemplo en Mendoza.\n\n**Rol requerido:** ADMIN"
+          },
+          "response": []
+        },
+        {
+          "name": "Crear depósito (Ejemplo: San Luis)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Depósito San Luis\",\n  \"direccion\": \"Av. Illia 500\",\n  \"altura\": 500,\n  \"coordenada\": {\n    \"latitud\": -33.2995,\n    \"longitud\": -66.3356\n  }\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/locations/depositos",
+              "host": ["{{gateway}}"],
+              "path": ["api", "locations", "depositos"]
+            },
+            "description": "Crea un depósito de ejemplo en San Luis.\n\n**Rol requerido:** ADMIN"
           },
           "response": []
         }

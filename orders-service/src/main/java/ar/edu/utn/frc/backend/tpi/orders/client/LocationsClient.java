@@ -30,6 +30,12 @@ public class LocationsClient {
         return body.getDistanciaEnKilometros();
     }
 
+    public DepositoDto[] obtenerTodosLosDepositos() {
+        String url = helper.buildLocationsUrl("/api/v1/depositos");
+        ResponseEntity<DepositoDto[]> response = restTemplate.getForEntity(url, DepositoDto[].class);
+        return response.getBody();
+    }
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -52,5 +58,25 @@ public class LocationsClient {
     @AllArgsConstructor
     public static class DistanceResponse {
         private Double distanciaEnKilometros;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DepositoDto {
+        private Long id;
+        private String nombre;
+        private String direccion;
+        private Integer altura;
+        private CoordenadaDto coordenada;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CoordenadaDto {
+        private Long id;
+        private Double latitud;
+        private Double longitud;
     }
 }

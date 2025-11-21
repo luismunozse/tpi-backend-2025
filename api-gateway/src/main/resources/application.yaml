@@ -23,7 +23,7 @@ spring:
           predicates:
             - Path=/api/ordenes/**
           filters:
-            - RewritePath=/api/ordenes(?<segment>/?.*), /api/v1/solicitudes${segment}
+            - RewritePath=/api/ordenes(?<segment>/?.*), /api/v1${segment}
 
         - id: fleet-service
           uri: ${TPI_FLEET_SERVICE_URL:http://localhost:8081}

@@ -52,7 +52,7 @@ Ejecución con Docker Compose
 3. Servicios principales:
 
    - API Gateway: `http://localhost:8080`
-   - Keycloak: `http://localhost:8081` (admin: `admin` / `admin`, salvo que lo hayas cambiado)
+   - Keycloak: `http://localhost:8081` (admin: `admin` / `admin`)
    - PgAdmin: `http://localhost:5050`
    - Microservicios (accesibles desde Docker por nombre de servicio):
      - `orders-service:8080`
@@ -83,6 +83,20 @@ Configuración de Keycloak (resumen)
    - Los usuarios `admin` pueden crear nuevos usuarios `cliente` mediante `/auth/register`
    - Los usuarios deben crearse manualmente en Keycloak o via endpoint protegido
 
+### 📖 Guía Completa de Registro y Verificación
+
+Para entender el flujo completo de registro de usuarios, verificación en Keycloak y creación de solicitudes, ver:
+
+👉 **[GUIA_REGISTRO_Y_VERIFICACION.md](GUIA_REGISTRO_Y_VERIFICACION.md)**
+
+Esta guía incluye:
+- ✅ Flujo paso a paso de registro de usuario
+- ✅ Cómo verificar en Keycloak Admin Console
+- ✅ Cómo hacer login y crear primera solicitud
+- ✅ Diferencia entre Usuario (Keycloak) y Cliente (Orders DB)
+- ✅ Secuencia completa de pruebas con Postman
+- ✅ Checklist de verificación
+
 ### Seguridad y Autenticación
 
 El API Gateway está configurado como **OAuth2 Resource Server** y valida tokens JWT usando el endpoint JWKS de Keycloak.
@@ -107,6 +121,35 @@ El Gateway **extrae automáticamente** la información del usuario autenticado d
 - `X-User-Roles`: Roles separados por coma
 
 **Los microservicios NO validan OAuth2**. Solo reciben estos headers y confían en la validación del Gateway. Esto cumple con el principio didáctico: "La clave es que no modificamos los microservicios para entender OAuth2: ellos siguen viendo solo HTTP + headers. El que entiende de seguridad es el gateway."
+
+Verificación de Requisitos del Cliente
+--------------------------------------
+
+📋 **Ver análisis completo:** [ANALISIS_ENDPOINTS_CLIENTE.md](ANALISIS_ENDPOINTS_CLIENTE.md)
+
+El sistema cumple con todos los requisitos del enunciado para el rol **Cliente**:
+
+### ✅ 1. Registrar un pedido de traslado de contenedor
+- **Endpoint:** `POST /api/ordenes/solicitudes`
+- **Roles:** CLIENTE, ADMIN
+- **Funcionalidad:** Crea solicitud con cálculo automático de distancias (Google Maps API) y costos estimados
+
+### ✅ 2. Consultar el estado actual de su contenedor (seguimiento)
+- **Tracking detallado:** `GET /api/ordenes/solicitudes/{id}/tracking`
+- **Solicitud completa:** `GET /api/ordenes/solicitudes/{id}`
+- **Listar solicitudes:** `GET /api/ordenes/solicitudes?estado={estado}`
+- **Funcionalidad:** Estado de solicitud, estado de contenedor, fechas reales, camiones asignados
+
+### ✅ 3. Ver el costo y tiempo estimado de entrega
+- **Al crear:** Incluido en response de POST
+- **Al consultar:** Incluido en GET de solicitud
+- **Recalcular:** `POST /api/ordenes/solicitudes/{id}/recalcular`
+- **Funcionalidad:** Costo total + desglose detallado (base, combustible, depósitos, gestión, recargos)
+
+### 🔀 Feature Adicional: Rutas Alternativas
+- **Endpoint:** `POST /api/ordenes/solicitudes/calcular-alternativas`
+- **Funcionalidad:** Genera múltiples rutas usando Distance Matrix API, considera depósitos intermedios, calcula costos y tiempos, recomienda la más económica
+- **Documentación:** [RUTAS_ALTERNATIVAS.md](RUTAS_ALTERNATIVAS.md)
 
 Consumo de la API con Postman
 -----------------------------

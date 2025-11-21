@@ -2,10 +2,13 @@ package ar.edu.utn.frc.backend.tpi.orders.controller;
 
 import ar.edu.utn.frc.backend.tpi.orders.dto.ActualizarEstadoSolicitudDto;
 import ar.edu.utn.frc.backend.tpi.orders.dto.AsignarCamionRequestDto;
+import ar.edu.utn.frc.backend.tpi.orders.dto.CalcularRutasAlternativasRequestDto;
 import ar.edu.utn.frc.backend.tpi.orders.dto.CalculoSolicitudResponseDto;
 import ar.edu.utn.frc.backend.tpi.orders.dto.CrearSolicitudRequestDto;
+import ar.edu.utn.frc.backend.tpi.orders.dto.RutasAlternativasResponseDto;
 import ar.edu.utn.frc.backend.tpi.orders.dto.SolicitudTransporteDto;
 import ar.edu.utn.frc.backend.tpi.orders.dto.TramoDto;
+import ar.edu.utn.frc.backend.tpi.orders.service.RutasAlternativasService;
 import ar.edu.utn.frc.backend.tpi.orders.service.SolicitudTransporteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ import java.util.Optional;
 public class SolicitudTransporteController {
 
     private final SolicitudTransporteService solicitudService;
+    private final RutasAlternativasService rutasAlternativasService;
 
     @PostMapping
     public ResponseEntity<SolicitudTransporteDto> crearSolicitud(@RequestBody @Valid CrearSolicitudRequestDto request) {
@@ -78,5 +82,12 @@ public class SolicitudTransporteController {
     @GetMapping("/{id}/tracking")
     public List<TramoDto> obtenerTracking(@PathVariable Long id) {
         return solicitudService.obtenerTracking(id);
+    }
+
+    @PostMapping("/calcular-alternativas")
+    public ResponseEntity<RutasAlternativasResponseDto> calcularRutasAlternativas(
+            @RequestBody @Valid CalcularRutasAlternativasRequestDto request) {
+        RutasAlternativasResponseDto alternativas = rutasAlternativasService.calcularRutasAlternativas(request);
+        return ResponseEntity.ok(alternativas);
     }
 }
